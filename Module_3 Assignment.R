@@ -12,6 +12,9 @@ library(SnowballC)
 library(ggplot2)
 library(proxy)
 
+# Turn off scientific notation
+options(scipen = 999)
+
 # Load data
 youtube <- read.csv("most_subscribed_youtube_channels.csv")
 
@@ -24,7 +27,7 @@ corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, removeWords, stopwords("en"))
 corpus <- tm_map(corpus, stemDocument)
 
-# Create a Document-Term Matrix
+# Create a Document-Term Matrix- TD-IDF
 dtm <- DocumentTermMatrix(corpus)
 
 # Convert to matrix
@@ -78,4 +81,32 @@ if(length(cocomelon_index) > 0) {
     coord_flip() +
     labs(title = "Top 10 Channels Similar to Cocomelon", x = "Channel", y = "Similarity") +
     theme_minimal()
-} 
+
+  #making the subscribers a numerical value 
+  youtube$subscribers <- as.numeric(gsub(",", "", youtube$subscribers))
+  
+  # Get top 10 by category
+  top10_education <- subset(youtube, category == "Education")
+  top10_education <- head(top5_education[order(-top5_education$subscribers), ], 10)
+  
+  
+  top10_music <- subset(youtube, category == "Music")
+  top10_music <- head(top5_music[order(-top5_music$subscribers), ], 10)
+  
+  top10_entertainment <- subset(youtube, category == "Entertainment")
+  top10_entertainment <- head(top5_entertainment[order(-top5_entertainment$subscribers), ], 10)
+  
+  # Show results
+  print("Top 10 Education Channels:")
+  print(top10_education[, c("Youtuber", "subscribers")])
+  print("Top 10 Music Channels:")
+  print(top10_music[, c("Youtuber", "subscribers")])
+  print("Top 10 Entertainment Channels:")
+  print(top10_entertainment[, c("Youtuber", "subscribers")])
+  
+
+# Plot the similarity scores
+ggplot(similarity_df, aes(x = rownames(similarity_df), y = MrBeast)) +
+  geom_bar(stat = "identity", fill = "green") +
+  labs(title = "Cosine Similarity with MrBeast", x = "Channel", y = "Cosine Similarity") +
+  theme_minimal()
