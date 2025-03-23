@@ -12,9 +12,6 @@ library(ggplot2)
 library(proxy)
 
 
-# Turn off scientific notation
-options(scipen = 999)
-
 # Load data
 youtube <- read.csv("most_subscribed_youtube_channels.csv")
 
@@ -77,13 +74,16 @@ find_similar_channels <- function(channel_name) {
     # Print results
     print(top_10)
     
-    # Plot results
-    p <- ggplot(top_10, aes(x = reorder(Youtuber, Similarity), y = Similarity)) +
-      geom_bar(stat = "identity", "pink") +
+    # Fix the plotting code
+    plot_title <- paste("Top 10 Channels Similar to", youtube$Youtuber[channel_index[1]])
+    
+    # Make sure top_10$Youtuber is a factor with levels in the right order
+    top_10$Youtuber <- factor(top_10$Youtuber, levels = top_10$Youtuber[order(top_10$Similarity)])
+    
+    p <- ggplot(data = top_10) + 
+      geom_bar(aes(x = Youtuber, y = Similarity), stat = "identity") +
       coord_flip() +
-      labs(title = paste("Top 10 Channels Similar to", youtube$Youtuber[channel_index[1]]), 
-           x = "Channel", 
-           y = "Similarity") +
+      labs(title = plot_title, x = "Channel", y = "Similarity") +
       theme_minimal()
     
     print(p)
@@ -111,4 +111,5 @@ ggplot(similarity_df, aes(x = rownames(similarity_df), y = MrBeast)) +
   geom_bar(stat = "identity", fill = "green") +
   labs(title = "Cosine Similarity with MrBeast", x = "Channel", y = "Cosine Similarity") +
   theme_minimal()
+
 
