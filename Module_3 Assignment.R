@@ -10,7 +10,8 @@ library(tm)
 library(SnowballC)
 library(ggplot2)
 library(proxy)
-
+#Convert scientific value off
+options(scipen = 999)
 
 # Load data
 youtube <- read.csv("most_subscribed_youtube_channels.csv")
